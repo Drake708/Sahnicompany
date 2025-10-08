@@ -7,7 +7,11 @@ import IncomeTaxCalculator from './IncomeTaxCalculator';
 import GSTCalculator from './calculators/GSTCalculator';
 import EMICalculator from './calculators/EMICalculator';
 
-export default function CalculatorsPage() {
+interface CalculatorsPageProps {
+  onNavigate?: (page: string) => void;
+}
+
+export default function CalculatorsPage({ onNavigate }: CalculatorsPageProps = {}) {
   const [selectedCalculator, setSelectedCalculator] = useState<string | null>(null);
 
   const calculators = [
@@ -313,7 +317,10 @@ export default function CalculatorsPage() {
               Our calculators provide preliminary insights. For comprehensive financial planning 
               and personalized advice, connect with our chartered accountancy team.
             </p>
-            <Button className="bg-[#628ca2] text-white hover:bg-white hover:text-black px-12 py-4 text-lg font-light tracking-wider transition-all duration-500">
+            <Button 
+              className="bg-[#628ca2] text-white hover:bg-white hover:text-black px-12 py-4 text-lg font-light tracking-wider transition-all duration-500"
+              onClick={() => onNavigate?.('contact')}
+            >
               SCHEDULE CONSULTATION
             </Button>
           </motion.div>

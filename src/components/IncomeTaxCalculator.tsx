@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { ArrowLeft, Calculator, FileText, TrendingUp, Info, AlertCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Calculator, FileText, TrendingUp, Info, AlertCircle, CheckCircle, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { generateTaxReport } from './TaxReportGenerator';
+import { toast } from 'sonner@2.0.3';
 
 interface IncomeTaxCalculatorProps {
   onBack: () => void;
+  onNavigate?: (page: string) => void;
 }
 
 interface TaxCalculation {
@@ -29,7 +32,7 @@ interface TaxCalculation {
   }>;
 }
 
-export default function IncomeTaxCalculator({ onBack }: IncomeTaxCalculatorProps) {
+export default function IncomeTaxCalculator({ onBack, onNavigate }: IncomeTaxCalculatorProps) {
   const [formData, setFormData] = useState({
     pan: '',
     name: '',
@@ -68,6 +71,11 @@ export default function IncomeTaxCalculator({ onBack }: IncomeTaxCalculatorProps
   } | null>(null);
 
   const [recommendedRegime, setRecommendedRegime] = useState<'old' | 'new'>('new');
+
+  // Scroll to top when component loads
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   // Tax slabs for new regime (2024-25)
   const newRegimeSlabs = [
@@ -188,6 +196,50 @@ export default function IncomeTaxCalculator({ onBack }: IncomeTaxCalculatorProps
     }));
   };
 
+  const handleGeneratePDF = () => {
+    if (!calculations) {
+      toast.error('Please enter income details to generate report');
+      return;
+    }
+
+    if (!formData.pan || !formData.name) {
+      toast.error('Please enter PAN and Name to generate report');
+      return;
+    }
+
+    try {
+      generateTaxReport({
+        pan: formData.pan,
+        name: formData.name,
+        assessmentYear: formData.assessmentYear,
+        category: formData.category,
+        residentialStatus: formData.residentialStatus,
+        age: formData.age,
+        regime: formData.regime as 'old' | 'new',
+        salaryIncome: formData.salaryIncome,
+        housePropertyIncome: formData.housePropertyIncome,
+        capitalGainsIncome: formData.capitalGainsIncome,
+        businessIncome: formData.businessIncome,
+        otherIncome: formData.otherIncome,
+        section80C: formData.section80C,
+        section80D: formData.section80D,
+        section80E: formData.section80E,
+        section80G: formData.section80G,
+        section80EE: formData.section80EE,
+        section80CCD1B: formData.section80CCD1B,
+        tdsAmount: formData.tdsAmount,
+        advanceTax: formData.advanceTax,
+        oldRegime: calculations.oldRegime,
+        newRegime: calculations.newRegime,
+        recommendedRegime
+      });
+      toast.success('Tax report generated successfully!');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('Failed to generate report. Please try again.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black pt-20 relative overflow-hidden">
       {/* Background Elements */}
@@ -222,7 +274,7 @@ export default function IncomeTaxCalculator({ onBack }: IncomeTaxCalculatorProps
             transition={{ duration: 0.8 }}
             className="flex items-center justify-between mb-8"
           >
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-6 flex-1">
               <Button
                 onClick={onBack}
                 variant="outline"
@@ -238,6 +290,15 @@ export default function IncomeTaxCalculator({ onBack }: IncomeTaxCalculatorProps
                 <p className="text-white/60 font-light mt-2">Assessment Year 2024-25</p>
               </div>
             </div>
+            {calculations && (
+              <Button
+                onClick={handleGeneratePDF}
+                className="bg-[#628ca2] text-white hover:bg-white hover:text-black transition-all duration-500 px-8 py-3 mr-4"
+              >
+                <Download className="w-5 h-5 mr-3" />
+                GENERATE PDF REPORT
+              </Button>
+            )}
             <motion.div
               className="w-16 h-16 border border-[#628ca2]/30 flex items-center justify-center"
               whileHover={{ scale: 1.1, borderColor: '#628ca2' }}
@@ -408,7 +469,6 @@ export default function IncomeTaxCalculator({ onBack }: IncomeTaxCalculatorProps
                   <div className="flex items-center justify-between p-4 border border-[#628ca2]/20">
                     <div>
                       <p className="text-white/80">Income under the head Salaries</p>
-                      <button className="text-[#628ca2] text-sm hover:underline">Provide Income in detail →</button>
                     </div>
                     <div className="text-right">
                       <span className="text-white">₹</span>
@@ -425,7 +485,6 @@ export default function IncomeTaxCalculator({ onBack }: IncomeTaxCalculatorProps
                   <div className="flex items-center justify-between p-4 border border-[#628ca2]/20">
                     <div>
                       <p className="text-white/80">Income under the head House Property</p>
-                      <button className="text-[#628ca2] text-sm hover:underline">Provide Income in detail →</button>
                     </div>
                     <div className="text-right">
                       <span className="text-white">₹</span>
@@ -442,7 +501,6 @@ export default function IncomeTaxCalculator({ onBack }: IncomeTaxCalculatorProps
                   <div className="flex items-center justify-between p-4 border border-[#628ca2]/20">
                     <div>
                       <p className="text-white/80">Income under the head Capital Gains</p>
-                      <button className="text-[#628ca2] text-sm hover:underline">Provide Income in detail →</button>
                     </div>
                     <div className="text-right">
                       <span className="text-white">₹</span>
@@ -459,7 +517,6 @@ export default function IncomeTaxCalculator({ onBack }: IncomeTaxCalculatorProps
                   <div className="flex items-center justify-between p-4 border border-[#628ca2]/20">
                     <div>
                       <p className="text-white/80">Income under the head Business or Profession</p>
-                      <button className="text-[#628ca2] text-sm hover:underline">Provide Income in detail →</button>
                     </div>
                     <div className="text-right">
                       <span className="text-white">₹</span>
@@ -476,7 +533,6 @@ export default function IncomeTaxCalculator({ onBack }: IncomeTaxCalculatorProps
                   <div className="flex items-center justify-between p-4 border border-[#628ca2]/20">
                     <div>
                       <p className="text-white/80">Income under the head Other Sources</p>
-                      <button className="text-[#628ca2] text-sm hover:underline">Provide Income in detail →</button>
                     </div>
                     <div className="text-right">
                       <span className="text-white">₹</span>
@@ -813,7 +869,10 @@ export default function IncomeTaxCalculator({ onBack }: IncomeTaxCalculatorProps
                       This calculator provides an estimate based on current tax laws. For accurate calculations, 
                       detailed planning, and filing assistance, consult with our chartered accountancy experts.
                     </p>
-                    <Button className="mt-4 bg-[#628ca2] text-white hover:bg-white hover:text-black text-sm px-6 py-2">
+                    <Button 
+                      className="mt-4 bg-[#628ca2] text-white hover:bg-white hover:text-black text-sm px-6 py-2"
+                      onClick={() => onNavigate?.('contact')}
+                    >
                       GET PROFESSIONAL HELP
                     </Button>
                   </div>

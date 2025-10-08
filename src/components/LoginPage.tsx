@@ -15,25 +15,62 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     username: '',
     password: ''
   });
 
+  // Admin credentials
+  const ADMIN_CREDENTIALS = {
+    username: 'cadinkarsahni',
+    password: 'Jaishreeram@123'
+  };
+
+  // Client credentials
+  const CLIENT_CREDENTIALS = [
+    {
+      username: 'LOHPS7022A',
+      password: 'lohps7022a24121998',
+      name: 'Simran',
+      pan: 'LOHPS7022A'
+    }
+  ];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage('');
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Navigate based on user type
+    // Simulate authentication delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
     if (activeTab === 'admin') {
-      onNavigate('admin', 'admin');
+      // Admin validation
+      if (formData.username === ADMIN_CREDENTIALS.username && 
+          formData.password === ADMIN_CREDENTIALS.password) {
+        onNavigate('admin', 'admin');
+      } else {
+        setErrorMessage('Invalid credentials. Please check your username and password.');
+        setIsLoading(false);
+      }
     } else {
-      onNavigate('portal', 'client');
+      // Client login validation
+      const client = CLIENT_CREDENTIALS.find(
+        c => c.username === formData.username && c.password === formData.password
+      );
+      
+      if (client) {
+        // Store client info in sessionStorage for the portal
+        sessionStorage.setItem('clientName', client.name);
+        sessionStorage.setItem('clientPAN', client.pan);
+        onNavigate('portal', 'client');
+      } else {
+        setErrorMessage('Invalid credentials. Please check your username (PAN) and password.');
+        setIsLoading(false);
+      }
     }
-    
-    setIsLoading(false);
   };
 
   return (
@@ -174,7 +211,11 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
                 />
                 <div className="relative flex">
                   <button
-                    onClick={() => setActiveTab('client')}
+                    onClick={() => {
+                      setActiveTab('client');
+                      setErrorMessage('');
+                      setFormData({ email: '', username: '', password: '' });
+                    }}
                     className={`flex-1 py-4 px-6 text-center font-light tracking-wider transition-all duration-500 relative z-10 ${
                       activeTab === 'client'
                         ? 'text-white'
@@ -184,7 +225,11 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
                     CLIENT ACCESS
                   </button>
                   <button
-                    onClick={() => setActiveTab('admin')}
+                    onClick={() => {
+                      setActiveTab('admin');
+                      setErrorMessage('');
+                      setFormData({ email: '', username: '', password: '' });
+                    }}
                     className={`flex-1 py-4 px-6 text-center font-light tracking-wider transition-all duration-500 relative z-10 ${
                       activeTab === 'admin'
                         ? 'text-white'
@@ -213,11 +258,11 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
               <form onSubmit={handleSubmit} className="relative z-10 space-y-8">
                 <div className="text-center mb-10">
                   <h2 className="text-3xl font-light tracking-wide mb-4">
-                    {activeTab === 'client' ? 'WELCOME BACK' : 'ADMIN PORTAL'}
+                    {activeTab === 'client' ? 'CLIENT PORTAL' : 'ADMIN PORTAL'}
                   </h2>
                   <p className="text-white/60 font-light tracking-wider">
                     {activeTab === 'client' 
-                      ? 'Secure client portal authentication'
+                      ? 'Secure client portal - Use PAN as username'
                       : 'Administrative system access'
                     }
                   </p>
@@ -230,24 +275,23 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, delay: 0.8 }}
                   >
-                    <Label htmlFor={activeTab === 'client' ? 'email' : 'username'} className="text-white/80 font-light tracking-wider">
-                      {activeTab === 'client' ? 'EMAIL ADDRESS' : 'ADMIN USERNAME'}
+                    <Label htmlFor={activeTab === 'client' ? 'username' : 'username'} className="text-white/80 font-light tracking-wider">
+                      {activeTab === 'client' ? 'USERNAME (PAN)' : 'ADMIN USERNAME'}
                     </Label>
                     <div className="relative mt-3">
-                      {activeTab === 'client' ? (
-                        <Mail className="absolute left-4 top-4 text-[#628ca2] w-5 h-5" />
-                      ) : (
-                        <User className="absolute left-4 top-4 text-[#628ca2] w-5 h-5" />
-                      )}
+                      <User className="absolute left-4 top-4 text-[#628ca2] w-5 h-5" />
                       <Input
-                        type={activeTab === 'client' ? 'email' : 'text'}
-                        id={activeTab === 'client' ? 'email' : 'username'}
-                        placeholder={activeTab === 'client' ? 'Enter your email address' : 'Enter admin username'}
-                        value={activeTab === 'client' ? formData.email : formData.username}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          [activeTab === 'client' ? 'email' : 'username']: e.target.value
-                        })}
+                        type="text"
+                        id="username"
+                        placeholder={activeTab === 'client' ? 'Enter your PAN' : 'Enter admin username'}
+                        value={formData.username}
+                        onChange={(e) => {
+                          setFormData({
+                            ...formData,
+                            username: e.target.value.toUpperCase()
+                          });
+                          setErrorMessage('');
+                        }}
                         className="pl-14 h-14 bg-transparent border-[#628ca2]/30 text-white placeholder-white/40 font-light tracking-wider focus:border-[#628ca2] transition-all duration-500"
                         required
                       />
@@ -268,7 +312,10 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
                         id="password"
                         placeholder="Enter your password"
                         value={formData.password}
-                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                        onChange={(e) => {
+                          setFormData({...formData, password: e.target.value});
+                          setErrorMessage('');
+                        }}
                         className="pl-14 pr-14 h-14 bg-transparent border-[#628ca2]/30 text-white placeholder-white/40 font-light tracking-wider focus:border-[#628ca2] transition-all duration-500"
                         required
                       />
@@ -306,6 +353,22 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
                     FORGOT PASSWORD?
                   </button>
                 </motion.div>
+
+                {/* Error Message */}
+                <AnimatePresence>
+                  {errorMessage && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="bg-red-500/10 border border-red-500/30 p-4 text-center"
+                    >
+                      <p className="text-red-400 text-sm font-light tracking-wider">
+                        {errorMessage}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}

@@ -11,6 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Badge } from './ui/badge';
+import AdminFileUpload from './AdminFileUpload';
+import AdminFileViewer from './AdminFileViewer';
 
 interface AdminPortalProps {
   onNavigate: (page: string) => void;
@@ -340,6 +342,10 @@ export default function AdminPortal({ onNavigate, onLogout }: AdminPortalProps) 
               <FileText className="mr-2 w-4 h-4" />
               DOCUMENTS
             </TabsTrigger>
+            <TabsTrigger value="upload" className="data-[state=active]:bg-[#628ca2] data-[state=active]:text-white">
+              <Upload className="mr-2 w-4 h-4" />
+              UPLOAD
+            </TabsTrigger>
             <TabsTrigger value="analytics" className="data-[state=active]:bg-[#628ca2] data-[state=active]:text-white">
               <BarChart3 className="mr-2 w-4 h-4" />
               ANALYTICS
@@ -440,52 +446,18 @@ export default function AdminPortal({ onNavigate, onLogout }: AdminPortalProps) 
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <Card className="bg-black/50 border-[#628ca2]/20">
-                <CardHeader>
-                  <CardTitle className="text-xl font-light text-white">DOCUMENT MANAGEMENT</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {documents.map((doc, index) => (
-                      <motion.div
-                        key={doc.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                        className="flex items-center justify-between p-6 border border-[#628ca2]/20 hover:border-[#628ca2]/40 transition-all duration-300"
-                      >
-                        <div className="flex items-center space-x-6">
-                          <div className="w-12 h-12 border border-[#628ca2]/30 flex items-center justify-center">
-                            <FileText className="w-6 h-6 text-[#628ca2]" />
-                          </div>
-                          <div>
-                            <h4 className="text-white font-light">{doc.fileName}</h4>
-                            <p className="text-white/60 text-sm">{doc.clientName}</p>
-                            <div className="flex items-center space-x-4 mt-2 text-xs text-white/40">
-                              <span>{doc.uploadDate}</span>
-                              <span>{doc.size}</span>
-                              <span>{doc.type}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <Badge className={`${getStatusColor(doc.status)} border`}>
-                            {doc.status}
-                          </Badge>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-[#628ca2]/40 text-[#628ca2] hover:bg-[#628ca2] hover:text-white"
-                          >
-                            <Eye className="w-4 h-4 mr-2" />
-                            VIEW
-                          </Button>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <AdminFileViewer />
+            </motion.div>
+          </TabsContent>
+
+          {/* Upload Tab */}
+          <TabsContent value="upload" className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <AdminFileUpload />
             </motion.div>
           </TabsContent>
 

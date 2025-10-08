@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 import { Button } from './components/ui/button';
+import { Toaster } from './components/ui/sonner';
 import HomePage from './components/HomePage';
 import ServicesPage from './components/ServicesPage';
 import TaxMateAI from './components/TaxMateAI';
@@ -93,9 +94,9 @@ export default function App() {
       case 'taxmate':
         return <TaxMateAI />;
       case 'knowledge':
-        return <KnowledgePortal />;
+        return <KnowledgePortal onNavigate={handleNavigation} />;
       case 'calculators':
-        return <CalculatorsPage />;
+        return <CalculatorsPage onNavigate={handleNavigation} />;
       case 'about':
         return <AboutPage />;
       case 'contact':
@@ -113,6 +114,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
+      <Toaster position="top-right" theme="dark" />
+      
       {/* Cursor Follower */}
       <motion.div
         className="fixed top-0 left-0 w-6 h-6 bg-[#628ca2]/20 rounded-full pointer-events-none z-50 mix-blend-difference"

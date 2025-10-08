@@ -57,33 +57,34 @@ export default function HomePage({ onNavigate }: HomePageProps) {
       {/* Floating Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-[#628ca2]/20 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              scale: [1, 1.5, 1],
-              opacity: [0.2, 0.8, 0.2],
-              x: [0, Math.random() * 50 - 25],
-              y: [0, Math.random() * 50 - 25],
-            }}
-            transition={{
-              duration: 4 + Math.random() * 4,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-          />
-        ))}
+  <motion.div
+    key={i}
+    className="absolute w-1 h-1 bg-[#628ca2]/20 rounded-full pointer-events-none"
+    style={{
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+    }}
+    animate={{
+      scale: [1, 1.5, 1],
+      opacity: [0.2, 0.8, 0.2],
+      x: [0, Math.random() * 50 - 25],
+      y: [0, Math.random() * 50 - 25],
+    }}
+    transition={{
+      duration: 4 + Math.random() * 4,
+      repeat: Infinity,
+      delay: Math.random() * 2,
+    }}
+  />
+))}
+
       </div>
 
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-start relative overflow-hidden pt-20">
         {/* Dynamic Background Elements */}
         <motion.div
-          className="absolute inset-0 opacity-5"
+          className="absolute inset-0 opacity-5 pointer-events-none"
           animate={{
             background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(98, 140, 162, 0.1) 0%, transparent 50%)`
           }}
@@ -91,7 +92,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
         />
 
         {/* Geometric Patterns */}
-        <div className="absolute right-0 top-0 w-1/2 h-full opacity-5">
+        <div className="absolute right-0 top-0 w-1/2 h-full opacity-5 pointer-events-none">
           <motion.div
             className="absolute top-1/4 right-1/4 w-96 h-96 border border-[#628ca2]/20"
             animate={{ rotate: 360 }}

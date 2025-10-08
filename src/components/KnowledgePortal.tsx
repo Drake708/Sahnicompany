@@ -36,7 +36,11 @@ interface Resource {
   rating: number;
 }
 
-export default function KnowledgePortal() {
+interface KnowledgePortalProps {
+  onNavigate?: (page: string) => void;
+}
+
+export default function KnowledgePortal({ onNavigate }: KnowledgePortalProps = {}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
@@ -619,7 +623,10 @@ export default function KnowledgePortal() {
               Our knowledge portal provides general information. For specific advice 
               tailored to your situation, connect with our professional team.
             </p>
-            <Button className="bg-[#628ca2] text-white hover:bg-white hover:text-black px-12 py-4 text-lg font-light tracking-wider transition-all duration-500">
+            <Button 
+              className="bg-[#628ca2] text-white hover:bg-white hover:text-black px-12 py-4 text-lg font-light tracking-wider transition-all duration-500"
+              onClick={() => onNavigate?.('contact')}
+            >
               GET PROFESSIONAL CONSULTATION
             </Button>
           </motion.div>

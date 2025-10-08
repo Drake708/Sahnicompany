@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   FileText, Download, Calendar, TrendingUp, DollarSign, 
   Eye, Bell, Settings, User, BarChart3, PieChart,
   ArrowUp, ArrowDown, Clock, CheckCircle, AlertCircle,
-  CreditCard, Receipt, Briefcase, Home
+  CreditCard, Receipt, Briefcase, Home, File
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
+import ClientFileViewer from './ClientFileViewer';
+import { getClientByPan } from './FileStorageService';
 
 interface ClientPortalProps {
   onNavigate: (page: string) => void;
@@ -37,16 +39,25 @@ interface Document {
 
 export default function ClientPortal({ onNavigate, onLogout }: ClientPortalProps) {
   const [selectedYear, setSelectedYear] = useState('2023-24');
+  const [clientId, setClientId] = useState('simran_001');
 
   const clientInfo = {
-    name: 'Rajesh Kumar Enterprises',
+    name: 'Simran',
     clientId: 'CL-2024-001',
-    email: 'rajesh@rke.com',
+    email: 'client@example.com',
     phone: '+91 98765 43210',
-    businessType: 'Manufacturing',
-    gstNumber: '27ABCDE1234F1ZX',
-    panNumber: 'ABCDE1234F'
+    businessType: 'Individual',
+    gstNumber: '-',
+    panNumber: 'LOHPS7022A'
   };
+
+  // Get client ID from storage based on PAN
+  useEffect(() => {
+    const storedClient = getClientByPan(clientInfo.panNumber);
+    if (storedClient) {
+      setClientId(storedClient.id);
+    }
+  }, []);
 
   const taxRecords: TaxRecord[] = [
     {
@@ -466,51 +477,7 @@ export default function ClientPortal({ onNavigate, onLogout }: ClientPortalProps
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <Card className="bg-black/50 border-[#628ca2]/20">
-                <CardHeader>
-                  <CardTitle className="text-xl font-light text-white">YOUR DOCUMENTS</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {documents.map((doc, index) => (
-                      <motion.div
-                        key={doc.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                        className="flex items-center justify-between p-6 border border-[#628ca2]/20 hover:border-[#628ca2]/40 transition-all duration-300"
-                      >
-                        <div className="flex items-center space-x-6">
-                          <div className="w-12 h-12 border border-[#628ca2]/30 flex items-center justify-center">
-                            <FileText className="w-6 h-6 text-[#628ca2]" />
-                          </div>
-                          <div>
-                            <h4 className="text-white font-light">{doc.name}</h4>
-                            <div className="flex items-center space-x-4 mt-2 text-xs text-white/40">
-                              <span>{doc.uploadDate}</span>
-                              <span>{doc.size}</span>
-                              <span>{doc.type}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <Badge className={`${getStatusColor(doc.status)} border`}>
-                            {doc.status}
-                          </Badge>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-[#628ca2]/40 text-[#628ca2] hover:bg-[#628ca2] hover:text-white"
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            DOWNLOAD
-                          </Button>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <ClientFileViewer clientId={clientId} />
             </motion.div>
           </TabsContent>
 
